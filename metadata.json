@@ -1,0 +1,5 @@
+{
+  "name": "Interactive Scalable Timeline",
+  "description": "An interactive, scalable web application that allows users to visualize, create, and manage historical or personal timelines. Supports zooming from millennia down to individual days, and allows users to add, edit, and group events and periods.",
+  "requestFramePermissions": []
+}
