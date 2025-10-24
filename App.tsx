@@ -16,13 +16,15 @@ const App: React.FC = () => {
       style={{ backgroundColor, color: textColor }}
     >
       <header className="p-4 bg-black/20 backdrop-blur-sm border-b border-white/10 z-20 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-cyan-400">ChronoCraft</h1>
+        <div className="flex items-center gap-6">
+            <h1 className="text-2xl font-bold text-cyan-400">ChronoCraft</h1>
+            <Toolbar />
+        </div>
         <ThemeToolbar />
       </header>
       <main className="flex-grow relative">
         <Timeline />
       </main>
-      <Toolbar />
       {modalState.isOpen && <EditModal />}
     </div>
   );

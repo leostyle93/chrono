@@ -4,10 +4,10 @@ import { useTimelineStore } from '../store/timelineStore';
 const Toolbar: React.FC = () => {
   const { openModal } = useTimelineStore();
 
-  const buttonStyle = "px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-500 transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-400 shadow-lg";
+  const buttonStyle = "px-3 py-1.5 bg-cyan-600 text-white text-sm rounded-md hover:bg-cyan-500 transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-400 shadow-md";
 
   return (
-    <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 bg-black/20 backdrop-blur-sm p-2 rounded-lg flex gap-2">
+    <div className="flex gap-2">
       <button onClick={() => openModal('event')} className={buttonStyle}>
         Add Event
       </button>
