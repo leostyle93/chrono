@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { useTimelineStore } from '../store/timelineStore';
 import type { TimelineItem, TimelineEvent, TimelinePeriod, TimelineFrame } from '../types';
+import ColorPicker from './ColorPicker';
 
 const EditModal: React.FC = () => {
   const { modalState, closeModal, addItem, updateItem, deleteItem } = useTimelineStore();
@@ -16,15 +16,15 @@ const EditModal: React.FC = () => {
     } else {
       // Default values for new items
       const defaults = {
-        event: { title: '', description: '', date: new Date().getFullYear(), month: undefined, day: undefined, yLevel: 0, color: 'blue', imageUrl: '' },
-        period: { title: '', startDate: 2000, endDate: 2010, yLevel: 0, color: 'green' },
-        frame: { title: '', startDate: 1990, endDate: 2020, startY: 0, height: 4, color: 'gray' }
+        event: { title: '', description: '', date: new Date().getFullYear(), month: undefined, day: undefined, yLevel: 0, color: '#f87171', imageUrl: '' },
+        period: { title: '', startDate: 2000, endDate: 2010, yLevel: 0, color: '#60a5fa' },
+        frame: { title: '', startDate: 1990, endDate: 2020, startY: 0, height: 4, color: '#9ca3af' }
       };
       setFormData(defaults[itemType!] || {});
     }
   }, [item, itemType]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     
     let finalValue: any = value;
@@ -33,6 +33,10 @@ const EditModal: React.FC = () => {
     }
     
     setFormData({ ...formData, [name]: finalValue });
+  };
+  
+  const handleColorChange = (color: string) => {
+    setFormData({ ...formData, color });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -69,17 +73,8 @@ const EditModal: React.FC = () => {
           <input type="text" name="title" id="title" value={formData.title || ''} onChange={handleChange} className={inputStyle} required />
         </div>
         <div>
-          <label htmlFor="color" className="block text-sm font-medium text-gray-300">Color</label>
-          <select name="color" id="color" value={formData.color || 'blue'} onChange={handleChange} className={inputStyle}>
-            <option value="red">Red</option>
-            <option value="blue">Blue</option>
-            <option value="green">Green</option>
-            <option value="yellow">Yellow</option>
-            <option value="purple">Purple</option>
-            <option value="orange">Orange</option>
-            <option value="sky">Sky</option>
-            <option value="gray">Gray</option>
-          </select>
+           <label className="block text-sm font-medium text-gray-300">Color</label>
+           <ColorPicker selectedColor={formData.color} onChange={handleColorChange} />
         </div>
       </>
     );
@@ -112,7 +107,7 @@ const EditModal: React.FC = () => {
               <input type="text" name="imageUrl" id="imageUrl" value={formData.imageUrl || ''} onChange={handleChange} className={inputStyle} placeholder="https://example.com/image.png" />
             </div>
             <div>
-              <label htmlFor="yLevel" className="block text-sm font-medium text-gray-300">Vertical Level</label>
+              <label htmlFor="yLevel" className="block text-sm font-medium text-gray-300">Vertical Level Offset</label>
               <input type="number" name="yLevel" id="yLevel" value={formData.yLevel || 0} onChange={handleChange} className={inputStyle} step="1" />
             </div>
           </>
@@ -173,14 +168,14 @@ const EditModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={closeModal}>
-      <div className="bg-gray-800 rounded-lg shadow-xl w-full max-w-lg p-6" onClick={e => e.stopPropagation()}>
+      <div className="bg-gray-800 rounded-lg shadow-xl w-full max-w-lg p-6 border border-gray-700" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-cyan-400">{isEditing ? 'Edit' : 'Add'} {itemType}</h2>
-          <button onClick={closeModal} className="text-gray-400 hover:text-white">&times;</button>
+          <button onClick={closeModal} className="text-gray-400 hover:text-white text-2xl">&times;</button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           {renderFields()}
-          <div className="flex justify-between items-center pt-4">
+          <div className="flex justify-between items-center pt-4 mt-4 border-t border-gray-700">
             <div>
               {isEditing && (
                 <button type="button" onClick={handleDelete} className="px-4 py-2 bg-red-700 text-white rounded-md hover:bg-red-600 transition-colors">

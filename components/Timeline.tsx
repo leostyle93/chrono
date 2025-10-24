@@ -1,6 +1,5 @@
-
 import React, { useRef, useCallback } from 'react';
-import { useTimelineStore, yearToPercent } from '../store/timelineStore';
+import { useTimelineStore } from '../store/timelineStore';
 import type { TimelineItem, TimelineEvent, TimelinePeriod, TimelineFrame } from '../types';
 import EventCard from './EventCard';
 import PeriodSpan from './PeriodSpan';
@@ -50,7 +49,9 @@ const Timeline: React.FC = () => {
     };
     switch (item.type) {
       case 'event':
-        return <EventCard {...props} event={item as TimelineEvent} />;
+        const event = item as TimelineEvent;
+        const parentPeriod = items.find(p => p.id === event.periodId && p.type === 'period') as TimelinePeriod | undefined;
+        return <EventCard {...props} event={event} parentYLevel={parentPeriod?.yLevel} />;
       case 'period':
         return <PeriodSpan {...props} period={item as TimelinePeriod} />;
       case 'frame':

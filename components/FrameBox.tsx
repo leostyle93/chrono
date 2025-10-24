@@ -1,7 +1,7 @@
-
 import React from 'react';
 import type { TimelineFrame } from '../types';
 import { useTimelineStore, yearToPercent } from '../store/timelineStore';
+import { useThemeStore } from '../store/themeStore';
 
 interface FrameBoxProps {
   frame: TimelineFrame;
@@ -9,15 +9,10 @@ interface FrameBoxProps {
   end: number;
 }
 
-const colorClasses: Record<string, string> = {
-    gray: 'border-gray-500 bg-gray-500/10',
-    red: 'border-red-500 bg-red-500/10',
-    blue: 'border-blue-500 bg-blue-500/10',
-    green: 'border-green-500 bg-green-500/10',
-  };
-
 const FrameBox: React.FC<FrameBoxProps> = ({ frame, start, end }) => {
   const { openModal } = useTimelineStore();
+  const { frameOpacity, textColor } = useThemeStore();
+
   const left = yearToPercent(frame.startDate, start, end);
   const right = yearToPercent(frame.endDate, start, end);
   const width = right - left;
@@ -29,20 +24,36 @@ const FrameBox: React.FC<FrameBoxProps> = ({ frame, start, end }) => {
   };
 
   const bottom = 70 + frame.startY * 40;
-  const frameColor = colorClasses[frame.color] || 'border-gray-500 bg-gray-500/10';
+
+  // Convert hex color to rgba for opacity control
+  const hexToRgba = (hex: string, alpha: number) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(1, 5).slice(2, 4), 16);
+    const b = parseInt(hex.slice(1, 7).slice(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+  
+  const frameColor = frame.color || '#9ca3af'; // Default to gray
 
   return (
     <div
-      className={`absolute rounded-lg border-2 border-dashed p-2 cursor-pointer ${frameColor}`}
+      className={`absolute rounded-lg border-2 border-dashed p-2 cursor-pointer transition-colors duration-300`}
       style={{ 
         left: `${left}%`, 
         width: `${width}%`, 
         bottom: `${bottom}px`,
-        height: `${frame.height * 40}px`
+        height: `${frame.height * 40}px`,
+        borderColor: hexToRgba(frameColor, 0.5 * (frameOpacity / 100)),
+        backgroundColor: hexToRgba(frameColor, 0.1 * (frameOpacity / 100)),
       }}
       onDoubleClick={handleDoubleClick}
     >
-      <span className="absolute -top-6 left-2 text-sm font-bold text-gray-400">{frame.title}</span>
+      <span 
+        className="absolute -top-6 left-2 text-sm font-bold"
+        style={{ color: textColor, opacity: 0.7 }}
+      >
+        {frame.title}
+      </span>
     </div>
   );
 };

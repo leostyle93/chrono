@@ -1,17 +1,23 @@
-
 import React from 'react';
 import Timeline from './components/Timeline';
 import Toolbar from './components/Toolbar';
 import EditModal from './components/EditModal';
+import ThemeToolbar from './components/ThemeToolbar';
 import { useTimelineStore } from './store/timelineStore';
+import { useThemeStore } from './store/themeStore';
 
 const App: React.FC = () => {
   const modalState = useTimelineStore(state => state.modalState);
+  const { backgroundColor, textColor } = useThemeStore();
 
   return (
-    <div className="w-screen h-screen bg-gray-900 flex flex-col overflow-hidden">
-      <header className="p-4 bg-gray-800/80 backdrop-blur-sm border-b border-gray-700 z-20">
-        <h1 className="text-2xl font-bold text-cyan-400">Interactive Timeline</h1>
+    <div 
+      className="w-screen h-screen flex flex-col overflow-hidden transition-colors duration-300"
+      style={{ backgroundColor, color: textColor }}
+    >
+      <header className="p-4 bg-black/20 backdrop-blur-sm border-b border-white/10 z-20 flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-cyan-400">ChronoCraft</h1>
+        <ThemeToolbar />
       </header>
       <main className="flex-grow relative">
         <Timeline />

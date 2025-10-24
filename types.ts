@@ -1,4 +1,3 @@
-
 export interface TimelineEvent {
   id: string;
   type: 'event';
@@ -10,6 +9,8 @@ export interface TimelineEvent {
   yLevel: number;
   imageUrl?: string;
   color: string;
+  frameId?: string;
+  periodId?: string;
 }
 
 export interface TimelinePeriod {
@@ -20,6 +21,7 @@ export interface TimelinePeriod {
   endDate: number;
   yLevel: number;
   color: string;
+  frameId?: string;
 }
 
 export interface TimelineFrame {

@@ -1,7 +1,7 @@
-
 import React from 'react';
 import type { TimelinePeriod } from '../types';
 import { useTimelineStore, yearToPercent } from '../store/timelineStore';
+import { useThemeStore } from '../store/themeStore';
 
 interface PeriodSpanProps {
   period: TimelinePeriod;
@@ -9,18 +9,10 @@ interface PeriodSpanProps {
   end: number;
 }
 
-const colorClasses: Record<string, string> = {
-    red: 'bg-red-500/30 border-red-500 hover:bg-red-500/50',
-    blue: 'bg-blue-500/30 border-blue-500 hover:bg-blue-500/50',
-    green: 'bg-green-500/30 border-green-500 hover:bg-green-500/50',
-    yellow: 'bg-yellow-500/30 border-yellow-500 hover:bg-yellow-500/50',
-    purple: 'bg-purple-500/30 border-purple-500 hover:bg-purple-500/50',
-    orange: 'bg-orange-500/30 border-orange-500 hover:bg-orange-500/50',
-    sky: 'bg-sky-500/30 border-sky-500 hover:bg-sky-500/50',
-  };
 
 const PeriodSpan: React.FC<PeriodSpanProps> = ({ period, start, end }) => {
   const { openModal } = useTimelineStore();
+  const { textColor } = useThemeStore();
   const left = yearToPercent(period.startDate, start, end);
   const right = yearToPercent(period.endDate, start, end);
   const width = right - left;
@@ -32,17 +24,24 @@ const PeriodSpan: React.FC<PeriodSpanProps> = ({ period, start, end }) => {
   };
   
   const bottom = 70 + period.yLevel * 40;
-  const spanColor = colorClasses[period.color] || 'bg-gray-500/30 border-gray-500';
 
   return (
     <div
-      className={`absolute h-8 rounded flex items-center px-2 cursor-pointer border-l-4 transition-all duration-200`}
-      style={{ left: `${left}%`, width: `${width}%`, bottom: `${bottom}px` }}
+      className={`absolute h-8 rounded flex items-center px-2 cursor-pointer transition-all duration-200`}
+      style={{ 
+        left: `${left}%`, 
+        width: `${width}%`, 
+        bottom: `${bottom}px`,
+        borderLeft: `4px solid ${period.color}`,
+      }}
       onDoubleClick={handleDoubleClick}
       title={period.title}
     >
-      <div className={`w-full h-full absolute top-0 left-0 ${spanColor} rounded`}></div>
-      <span className="relative text-xs font-semibold truncate text-white z-10">{period.title}</span>
+      <div 
+        className={`w-full h-full absolute top-0 left-0 rounded opacity-30 group-hover:opacity-50 transition-opacity`}
+        style={{ backgroundColor: period.color }}
+      ></div>
+      <span className="relative text-xs font-semibold truncate z-10" style={{ color: textColor }}>{period.title}</span>
     </div>
   );
 };
