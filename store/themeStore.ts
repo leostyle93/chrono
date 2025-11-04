@@ -8,6 +8,7 @@ interface ThemeState {
   setBackgroundColor: (color: string) => void;
   setTextColor: (color: string) => void;
   setFrameOpacity: (opacity: number) => void;
+  loadTheme: (theme: { backgroundColor: string; textColor: string; frameOpacity: number; }) => void;
 }
 
 export const useThemeStore = create<ThemeState>()(
@@ -19,6 +20,7 @@ export const useThemeStore = create<ThemeState>()(
       setBackgroundColor: (backgroundColor) => set({ backgroundColor }),
       setTextColor: (textColor) => set({ textColor }),
       setFrameOpacity: (frameOpacity) => set({ frameOpacity }),
+      loadTheme: (theme) => set(theme),
     }),
     {
       name: 'timeline-theme-storage', // name of the item in the storage (must be unique)

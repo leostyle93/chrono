@@ -2,6 +2,7 @@ import React from 'react';
 import { yearToPercent } from '../store/timelineStore';
 import { getTicks } from '../utils/time';
 import { useThemeStore } from '../store/themeStore';
+import { useLanguageStore } from '../store/languageStore';
 
 interface TimelineRulerProps {
   start: number;
@@ -9,7 +10,8 @@ interface TimelineRulerProps {
 }
 
 const TimelineRuler: React.FC<TimelineRulerProps> = ({ start, end }) => {
-  const { major: majorTicks, minor: minorTicks } = getTicks(start, end);
+  const { language } = useLanguageStore();
+  const { major: majorTicks, minor: minorTicks } = getTicks(start, end, 80, language);
   const { textColor } = useThemeStore();
 
   return (

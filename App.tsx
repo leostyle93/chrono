@@ -2,12 +2,18 @@ import React from 'react';
 import Timeline from './components/Timeline';
 import Toolbar from './components/Toolbar';
 import EditModal from './components/EditModal';
+import EventViewerModal from './components/EventViewerModal';
 import ThemeToolbar from './components/ThemeToolbar';
+import LinkContextMenu from './components/LinkContextMenu';
+import ImportModal from './components/ImportModal';
 import { useTimelineStore } from './store/timelineStore';
 import { useThemeStore } from './store/themeStore';
 
 const App: React.FC = () => {
   const modalState = useTimelineStore(state => state.modalState);
+  const viewerModalState = useTimelineStore(state => state.viewerModalState);
+  const linkMenuState = useTimelineStore(state => state.linkMenuState);
+  const isImportModalOpen = useTimelineStore(state => state.isImportModalOpen);
   const { backgroundColor, textColor } = useThemeStore();
 
   return (
@@ -22,10 +28,13 @@ const App: React.FC = () => {
         </div>
         <ThemeToolbar />
       </header>
-      <main className="flex-grow relative">
+      <main id="timeline-container" className="flex-grow relative">
         <Timeline />
       </main>
       {modalState.isOpen && <EditModal />}
+      {viewerModalState.isOpen && <EventViewerModal />}
+      {linkMenuState.isOpen && <LinkContextMenu />}
+      {isImportModalOpen && <ImportModal />}
     </div>
   );
 };

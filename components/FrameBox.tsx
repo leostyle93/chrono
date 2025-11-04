@@ -2,15 +2,18 @@ import React from 'react';
 import type { TimelineFrame } from '../types';
 import { useTimelineStore, yearToPercent } from '../store/timelineStore';
 import { useThemeStore } from '../store/themeStore';
+import clsx from 'clsx';
 
 interface FrameBoxProps {
   frame: TimelineFrame;
   start: number;
   end: number;
+  isLinking: boolean;
+  isLinkStart: boolean;
 }
 
-const FrameBox: React.FC<FrameBoxProps> = ({ frame, start, end }) => {
-  const { openModal } = useTimelineStore();
+const FrameBox: React.FC<FrameBoxProps> = ({ frame, start, end, isLinking, isLinkStart }) => {
+  const { openModal, handleItemClickForLinking } = useTimelineStore();
   const { frameOpacity, textColor } = useThemeStore();
 
   const left = yearToPercent(frame.startDate, start, end);
@@ -18,9 +21,18 @@ const FrameBox: React.FC<FrameBoxProps> = ({ frame, start, end }) => {
   const width = right - left;
 
   if (right < 0 || left > 100 || width <= 0) return null;
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isLinking) {
+      handleItemClickForLinking(frame.id);
+    }
+  };
   
   const handleDoubleClick = () => {
-    openModal('frame', frame);
+    if (!isLinking) {
+      openModal('frame', frame);
+    }
   };
 
   const bottom = 70 + frame.startY * 40;
@@ -37,15 +49,20 @@ const FrameBox: React.FC<FrameBoxProps> = ({ frame, start, end }) => {
 
   return (
     <div
-      className={`absolute rounded-lg border-2 border-dashed p-2 cursor-pointer transition-colors duration-300`}
+      className={clsx(
+        `absolute rounded-lg border-2 border-dashed p-2 transition-colors duration-300 z-0`,
+        isLinking ? 'cursor-pointer hover:border-cyan-400' : 'cursor-pointer',
+        isLinkStart && 'border-solid border-white'
+      )}
       style={{ 
         left: `${left}%`, 
         width: `${width}%`, 
         bottom: `${bottom}px`,
         height: `${frame.height * 40}px`,
-        borderColor: hexToRgba(frameColor, 0.5 * (frameOpacity / 100)),
+        borderColor: isLinkStart ? 'white' : hexToRgba(frameColor, 0.5 * (frameOpacity / 100)),
         backgroundColor: hexToRgba(frameColor, 0.1 * (frameOpacity / 100)),
       }}
+      onClick={handleClick}
       onDoubleClick={handleDoubleClick}
     >
       <span 

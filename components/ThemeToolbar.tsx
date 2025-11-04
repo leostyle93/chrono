@@ -1,5 +1,32 @@
 import React, { useState } from 'react';
 import { useThemeStore } from '../store/themeStore';
+import ColorPicker from './ColorPicker';
+
+const backgroundColors = [
+  // Dark tones
+  '#111827', // Slate
+  '#000000', // Black
+  '#1e1b4b', // Indigo
+  '#4c1d95', // Purple
+  // Light tones
+  '#f9fafb', // Off-white
+  '#f3f4f6', // Light Gray
+  '#fef9c3', // Light Yellow
+  '#e0f2fe', // Light Blue
+];
+
+const textColors = [
+  // Light tones (for dark backgrounds)
+  '#e5e7eb', // Light Gray
+  '#ffffff', // White
+  '#a5f3fc', // Light Cyan
+  '#d8b4fe', // Light Purple
+  // Dark tones (for light backgrounds)
+  '#1f2937', // Dark Gray
+  '#374151', // Medium Dark Gray
+  '#991b1b', // Dark Red
+  '#1e3a8a', // Dark Blue
+];
 
 const ThemeToolbar: React.FC = () => {
   const { 
@@ -9,22 +36,6 @@ const ThemeToolbar: React.FC = () => {
   } = useThemeStore();
   
   const [isOpen, setIsOpen] = useState(false);
-
-  const CustomColorInput = ({ label, value, onChange }: { label: string, value: string, onChange: (val: string) => void }) => (
-    <div className="flex items-center justify-between">
-      <label htmlFor={`${label}-color`} className="text-sm text-gray-300">{label}</label>
-      <div className="relative w-8 h-8 rounded-md overflow-hidden border border-gray-600">
-        <input
-          type="color"
-          id={`${label}-color`}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="absolute inset-0 w-full h-full cursor-pointer opacity-0"
-        />
-        <div className="w-full h-full" style={{ backgroundColor: value }}></div>
-      </div>
-    </div>
-  );
 
   return (
     <div className="relative">
@@ -39,8 +50,24 @@ const ThemeToolbar: React.FC = () => {
           className="absolute top-full right-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 z-30"
         >
             <div className="space-y-4">
-                <CustomColorInput label="Background" value={backgroundColor} onChange={setBackgroundColor} />
-                <CustomColorInput label="Text Color" value={textColor} onChange={setTextColor} />
+                <div>
+                    <label className="block text-sm font-medium text-gray-300">Background Color</label>
+                    <ColorPicker 
+                        selectedColor={backgroundColor} 
+                        onChange={setBackgroundColor}
+                        colors={backgroundColors}
+                        size="sm"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-300">Text &amp; Scale Color</label>
+                    <ColorPicker 
+                        selectedColor={textColor}
+                        onChange={setTextColor}
+                        colors={textColors}
+                        size="sm"
+                    />
+                </div>
                 
                 <div>
                     <label htmlFor="frameOpacity" className="block text-sm text-gray-300 mb-1">Frame Opacity</label>

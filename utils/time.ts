@@ -1,4 +1,7 @@
 
+
+import type { Language } from '../store/languageStore';
+
 // --- Date Conversion Helpers ---
 
 const isLeapYear = (year: number): boolean => {
@@ -50,26 +53,63 @@ const decimalToDate = (decimalYear: number) => {
 
 // --- Formatting Helpers ---
 
-const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const MONTH_NAMES: Record<Language, string[]> = {
+    en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    ru: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+    be: ["Студзень", "Люты", "Сакавік", "Красавік", "Травень", "Чэрвень", "Ліпень", "Жнівень", "Верасень", "Кастрычнік", "Лістапад", "Снежань"],
+};
 
-export const formatBceCe = (year: number): string => {
-   if (year < 0) return `${Math.abs(year)} BCE`;
-   if (year === 0) return `1 BCE`; // Conventionally, year 0 is 1 BCE
-   return `${year} CE`;
+const MONTH_ABBREVIATIONS: Record<Language, string[]> = {
+    en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    ru: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+    be: ["Сту", "Лют", "Сак", "Кра", "Тра", "Чэр", "Ліп", "Жні", "Вер", "Кас", "Ліс", "Сне"],
+};
+
+const BCE_CE_LABELS: Record<Language, { bce: string }> = {
+    en: { bce: 'BCE' },
+    ru: { bce: 'до н.э.' },
+    be: { bce: 'да н.э.' },
+};
+
+export const formatBceCe = (year: number, lang: Language): string => {
+   if (year < 0) return `${Math.abs(year)} ${BCE_CE_LABELS[lang].bce}`;
+   if (year === 0) return `1 ${BCE_CE_LABELS[lang].bce}`; // Conventionally, year 0 is 1 BCE
+   return `${year}`;
 }
 
 /**
  * Formats an event's date for display on its card.
  */
-export const formatEventDate = (event: { date: number; month?: number; day?: number }): string => {
-    const yearString = formatBceCe(event.date);
+export const formatEventDate = (event: { date: number; month?: number; day?: number }, lang: Language): string => {
+    const yearString = formatBceCe(event.date, lang);
+    const months = MONTH_NAMES[lang];
 
     if (event.month && event.day && event.month >= 1 && event.month <= 12) {
-        return `${MONTH_NAMES[event.month - 1]} ${event.day}, ${yearString}`;
+        return `${months[event.month - 1]} ${event.day}, ${yearString}`;
     }
     if (event.month && event.month >= 1 && event.month <= 12) {
-        return `${MONTH_NAMES[event.month - 1]}, ${yearString}`;
+        return `${months[event.month - 1]}, ${yearString}`;
     }
+    return yearString;
+};
+
+/**
+ * Formats a date part (start or end) for display on a period.
+ * Abbreviates for space.
+ */
+export const formatPeriodDate = (date: { date: number; month?: number; day?: number }, lang: Language): string => {
+    const yearString = formatBceCe(date.date, lang);
+    const months = MONTH_ABBREVIATIONS[lang];
+
+    if (date.month && date.day && date.month >= 1 && date.month <= 12) {
+        // Full date: Jan 1, 2024
+        return `${months[date.month - 1]} ${date.day}, ${yearString}`;
+    }
+    if (date.month && date.month >= 1 && date.month <= 12) {
+        // Month and year: Jan, 2024
+        return `${months[date.month - 1]}, ${yearString}`;
+    }
+    // Just year
     return yearString;
 };
 
@@ -78,7 +118,7 @@ export const formatEventDate = (event: { date: number; month?: number; day?: num
 /**
  * Dynamically generates ruler ticks based on the visible time span.
  */
-export const getTicks = (startYear: number, endYear: number, minSpacing: number = 80): { major: {value: number, label: string}[], minor: {value: number, label?: string}[] } => {
+export const getTicks = (startYear: number, endYear: number, minSpacing: number = 80, lang: Language): { major: {value: number, label: string}[], minor: {value: number, label?: string}[] } => {
     const span = endYear - startYear;
     if (span <= 0) return { major: [], minor: [] };
     const viewWidth = window.innerWidth;
@@ -93,7 +133,7 @@ export const getTicks = (startYear: number, endYear: number, minSpacing: number 
         const startTick = Math.ceil(startYear / tickSize) * tickSize;
         const major = [];
         for (let i = startTick; i <= endYear; i += tickSize) {
-            major.push({ value: i, label: formatBceCe(Math.round(i)) });
+            major.push({ value: i, label: formatBceCe(Math.round(i), lang) });
         }
 
         const subdivisions = tickSize > 100 ? 10 : 5;
@@ -118,15 +158,16 @@ export const getTicks = (startYear: number, endYear: number, minSpacing: number 
         const minor = []; // Months
         const start = Math.floor(startYear);
         const end = Math.ceil(endYear);
+        const months = MONTH_ABBREVIATIONS[lang];
 
         for (let year = start; year <= end; year++) {
             if (dateToDecimal({ date: year }) >= startYear && dateToDecimal({ date: year }) <= endYear) {
-                major.push({ value: year, label: formatBceCe(year) });
+                major.push({ value: year, label: formatBceCe(year, lang) });
             }
             for(let month = 1; month <= 12; month++) {
                 const decimal = dateToDecimal({ date: year, month: month, day: 15 });
                 if(decimal > startYear && decimal < endYear) {
-                    minor.push({ value: decimal, label: MONTH_NAMES[month-1].substring(0,3) });
+                    minor.push({ value: decimal, label: months[month-1] });
                 }
             }
         }
@@ -140,6 +181,7 @@ export const getTicks = (startYear: number, endYear: number, minSpacing: number 
     const eDate = decimalToDate(endYear);
     const eYear = eDate.year;
     const eMonth = eDate.month;
+    const months = MONTH_NAMES[lang];
     
     for(let year = sYear; year <= eYear; year++) {
         const startMonth = (year === sYear) ? sMonth : 1;
@@ -147,7 +189,7 @@ export const getTicks = (startYear: number, endYear: number, minSpacing: number 
         for(let month = startMonth; month <= endMonth; month++) {
             const monthDecimal = dateToDecimal({date: year, month, day: 1});
              if(monthDecimal > startYear && monthDecimal < endYear) {
-                major.push({ value: monthDecimal, label: `${MONTH_NAMES[month-1]} ${formatBceCe(year)}`});
+                major.push({ value: monthDecimal, label: `${months[month-1]} ${formatBceCe(year, lang)}`});
              }
 
             const daysInMonth = [0, 31, isLeapYear(year) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month];
